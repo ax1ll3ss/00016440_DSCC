@@ -103,7 +103,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /opt/confessions-app
+            cd ~/confessions-app
 
             # Pull latest image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/confessions-app:latest

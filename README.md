@@ -157,7 +157,7 @@ sudo ufw allow 443
 sudo ufw enable
 
 # 5. Clone repository
-cd /opt
+cd ~
 git clone https://github.com/ax1ll3ss/00016440_DSCC.git confessions-app
 cd confessions-app
 
