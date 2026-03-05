@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="page-title fade-in">📊 Dashboard</h1>
+
+    <div class="stats-grid fade-in">
+        <div class="stat-card">
+            <span class="stat-card-icon">🎭</span>
+            <span class="stat-card-number">{{ total_confessions }}</span>
+            <span class="stat-card-label">Total Confessions</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-icon">💬</span>
+            <span class="stat-card-number">{{ total_comments }}</span>
+            <span class="stat-card-label">Total Comments</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-card-icon">❤️</span>
+            <span class="stat-card-number">{{ total_reactions }}</span>
+            <span class="stat-card-label">Total Reactions</span>
+        </div>
+    </div>
+
+    <div class="dashboard-grid fade-in" style="animation-delay: 200ms">
+        <div class="dashboard-card">
+            <h2 class="card-section-title">🏷️ Popular Tags</h2>
+            {% for tag in popular_tags %}
+            <div class="dashboard-item">
+                <span class="tag-chip-sm">#{{ tag.name }}</span>
+                <span class="badge">{{ tag.count }} posts</span>
+            </div>
+            {% empty %}
+            <p class="text-muted">No tags yet</p>
+            {% endfor %}
+        </div>
+        <div class="dashboard-card">
+            <h2 class="card-section-title">😊 Mood Breakdown</h2>
+            {% for stat in mood_stats %}
+            <div class="dashboard-item">
+                <span>{{ stat.mood_display }}</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" data-width="{{ stat.percentage }}"></div>
+                </div>
+                <span class="badge">{{ stat.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="dashboard-card fade-in" style="animation-delay: 400ms">
+        <h2 class="card-section-title">🕐 Recent Confessions</h2>
+        {% for confession in recent_confessions %}
+        <a href="{% url 'confession_detail' confession.pk %}" class="dashboard-confession-item">
+            <span class="mood-badge-sm">{{ confession.get_mood_emoji }}</span>
+            <span class="confession-title-sm">{{ confession.title }}</span>
+            <span class="badge">💬 {{ confession.comments.count }} | ❤️ {{ confession.reactions.count }}</span>
+        </a>
+        {% empty %}
+        <p class="text-muted">No confessions yet</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

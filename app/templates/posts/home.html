@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Feed{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="feed-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar fade-in">
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">🔍 Search</h3>
+                <form method="get" action="{% url 'home' %}">
+                    <input type="text" name="q" class="form-input" placeholder="Search confessions..." value="{{ query }}">
+                </form>
+            </div>
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">😊 Filter by Mood</h3>
+                <div class="mood-filters">
+                    <a href="{% url 'home' %}" class="mood-chip {% if not current_mood %}active{% endif %}">All</a>
+                    {% for value, label in mood_choices %}
+                    <a href="?mood={{ value }}" class="mood-chip {% if current_mood == value %}active{% endif %}">{{ label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">🏷️ Popular Tags</h3>
+                <div class="tag-list">
+                    {% for tag in tags %}
+                    <a href="?tag={{ tag.slug }}" class="tag-chip {% if current_tag == tag.slug %}active{% endif %}">
+                        #{{ tag.name }} <span class="tag-count">{{ tag.count }}</span>
+                    </a>
+                    {% empty %}
+                    <p class="text-muted">No tags yet</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Feed -->
+        <section class="feed">
+            <div class="feed-header">
+                <h1 class="page-title">
+                    {% if current_tag %}
+                        Confessions tagged #{{ current_tag }}
+                    {% elif current_mood %}
+                        {{ current_mood|title }} Confessions
+                    {% elif query %}
+                        Search: "{{ query }}"
+                    {% else %}
+                        Latest Confessions
+                    {% endif %}
+                </h1>
+                {% if user.is_authenticated %}
+                <a href="{% url 'confession_create' %}" class="btn btn-primary">+ New Confession</a>
+                {% endif %}
+            </div>
+
+            {% for confession in confessions %}
+            <article class="confession-card slide-up" data-delay="{{ forloop.counter0 }}">
+                <div class="card-header">
+                    <div class="author-info">
+                        <span class="author-avatar">
+                            {% if confession.is_anonymous %}👻{% else %}{{ confession.author.profile.avatar_emoji }}{% endif %}
+                        </span>
+                        <div>
+                            <span class="author-name">{{ confession.get_author_display }}</span>
+                            <span class="post-time">{{ confession.created_at|naturaltime }}</span>
+                        </div>
+                    </div>
+                    <span class="mood-badge">{{ confession.get_mood_emoji }}</span>
+                </div>
+                <a href="{% url 'confession_detail' confession.pk %}" class="card-link">
+                    <h2 class="card-title">{{ confession.title }}</h2>
+                    <p class="card-excerpt">{{ confession.content|truncatewords:40 }}</p>
+                </a>
+                <div class="card-tags">
+                    {% for tag in confession.tags.all %}
+                    <a href="?tag={{ tag.slug }}" class="tag-chip-sm">#{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+                <div class="card-footer">
+                    <div class="card-stats">
+                        <span class="stat">💬 {{ confession.comments.count }}</span>
+                        <span class="stat">❤️ {{ confession.reactions.count }}</span>
+                    </div>
+                    <a href="{% url 'confession_detail' confession.pk %}" class="read-more">Read more →</a>
+                </div>
+            </article>
+            {% empty %}
+            <div class="empty-state fade-in">
+                <span class="empty-icon">🎭</span>
+                <h2>No confessions yet</h2>
+                <p>Be the first to share your anonymous confession!</p>
+                {% if user.is_authenticated %}
+                <a href="{% url 'confession_create' %}" class="btn btn-primary">Share a Confession</a>
+                {% else %}
+                <a href="{% url 'register' %}" class="btn btn-primary">Join to Confess</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            {% if confessions.has_other_pages %}
+            <div class="pagination">
+                {% if confessions.has_previous %}
+                <a href="?page={{ confessions.previous_page_number }}" class="page-btn">&laquo; Prev</a>
+                {% endif %}
+                {% for num in confessions.paginator.page_range %}
+                <a href="?page={{ num }}" class="page-btn {% if confessions.number == num %}active{% endif %}">{{ num }}</a>
+                {% endfor %}
+                {% if confessions.has_next %}
+                <a href="?page={{ confessions.next_page_number }}" class="page-btn">Next &raquo;</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+    </div>
+</div>
+{% endblock %}

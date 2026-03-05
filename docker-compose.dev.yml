@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    volumes:
+      - dev_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: confessions_db
+      POSTGRES_USER: confessions_user
+      POSTGRES_PASSWORD: confessions_pass
+    ports:
+      - "5432:5432"
+    networks:
+      - dev_network
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app:/home/appuser/app
+    ports:
+      - "8000:8000"
+    environment:
+      DJANGO_SETTINGS_MODULE: confessions_project.settings.dev
+      DJANGO_DEBUG: 1
+      POSTGRES_DB: confessions_db
+      POSTGRES_USER: confessions_user
+      POSTGRES_PASSWORD: confessions_pass
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+    depends_on:
+      - db
+    networks:
+      - dev_network
+
+volumes:
+  dev_postgres_data:
+
+networks:
+  dev_network:
+    driver: bridge
