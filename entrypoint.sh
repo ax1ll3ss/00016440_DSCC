@@ -28,5 +28,10 @@ python manage.py migrate --noinput
 echo "Collecting static files..."
 python manage.py collectstatic --noinput
 
-echo "Starting Gunicorn..."
-exec gunicorn confessions_project.wsgi:application -c /home/appuser/gunicorn.conf.py
+# If arguments are provided, execute them. Otherwise, start Gunicorn.
+if [ $# -gt 0 ]; then
+    exec "$@"
+else
+    echo "Starting Gunicorn..."
+    exec gunicorn confessions_project.wsgi:application -c /home/appuser/gunicorn.conf.py
+fi

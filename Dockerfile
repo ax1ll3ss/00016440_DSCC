@@ -33,8 +33,9 @@ COPY app/ .
 COPY entrypoint.sh /home/appuser/entrypoint.sh
 COPY gunicorn.conf.py /home/appuser/gunicorn.conf.py
 
-# Create directories for static and media
+# Create directories for static and media, set permissions
 RUN mkdir -p /home/appuser/app/staticfiles /home/appuser/app/media && \
+    chmod +x /home/appuser/entrypoint.sh && \
     chown -R appuser:appuser /home/appuser
 
 # Set environment
