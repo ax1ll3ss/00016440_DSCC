@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
 from .models import Profile
 
@@ -12,7 +12,7 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ["username", "email", "password1", "password2"]
+        fields = ["username", "email"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,3 +39,13 @@ class ProfileUpdateForm(forms.ModelForm):
                 "placeholder": "Tell us about yourself...",
             }),
         }
+
+
+class UserLoginForm(AuthenticationForm):
+    """Login form with styled fields."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs["class"] = "form-input"
+            field.widget.attrs["placeholder"] = field.label

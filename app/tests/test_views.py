@@ -187,3 +187,20 @@ class TestDashboard(TestCase):
         response = client.get(reverse("dashboard"))
         assert response.status_code == 200
         assert b"Dashboard" in response.content
+
+
+@pytest.mark.django_db
+class TestLoginError(TestCase):
+    """Test that login errors are displayed."""
+
+    def test_login_invalid_credentials_shows_error(self):
+        client = Client()
+        response = client.post(reverse("login"), {
+            "username": "nonexistentuser",
+            "password": "wrongpassword",
+        })
+        assert response.status_code == 200  # Stays on login page
+        # Django's AuthenticationForm default error message
+        assert b"Please enter a correct username and password" in response.content
+        # Check for our custom alert-error class
+        assert b"alert alert-error" in response.content
